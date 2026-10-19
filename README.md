@@ -1,125 +1,84 @@
-# WooCommerce Fast Fragments & Cart Turbo
+# ⚡ WooCommerce Fast Fragments & Cart Turbo
 
-[![WooCommerce HPOS Compatible](https://img.shields.io/badge/WooCommerce-HPOS%20Ready-7f54b3.svg)](https://github.com/harunsekmen/woo-fast-fragments)
+[![WooCommerce HPOS Ready](https://img.shields.io/badge/WooCommerce-HPOS%20Ready-7f54b3.svg)](https://github.com/harunsekmen/woo-fast-fragments)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://github.com/harunsekmen/woo-fast-fragments/blob/main/LICENSE)
 [![PHP: 8.1+](https://img.shields.io/badge/PHP-8.1%20to%208.3-8892be.svg)](https://github.com/harunsekmen/woo-fast-fragments)
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/harunsekmen/woo-fast-fragments/actions)
 
-> High-performance client-side cart fragment caching and REST turbo layer for WooCommerce. Eliminates server-choking `?wc-ajax=get_refreshed_fragments` bottlenecks and unlocks full-page edge caching.
+> Client-side shopping cart caching and lightweight REST updates for WooCommerce. Keeps mini-cart counters completely accurate without slowing down page navigation across your catalog.
 
-Developed and maintained by **[Harun Sekmen](https://github.com/harunsekmen)**.
+Developed and maintained by **[Harun Sekmen](https://github.com/harunsekmen)** — E-Commerce Systems Engineer & WooCommerce Developer.
 
----
-
-## ⚡ The Problem It Solves
-
-By default, WooCommerce loads an un-cacheable AJAX request (`?wc-ajax=get_refreshed_fragments`) on **every single page load** across your store, even on static catalog pages and blog posts where the visitor has never added an item to their cart.
-
-On stores with moderate to heavy traffic:
-1. **Server CPU Spikes & Deadlocks**: 50 simultaneous visitors browsing products trigger 50 concurrent PHP process spawns just to verify if the cart icon is empty.
-2. **Broken Page Caching**: Full-page caching solutions (Cloudflare Edge, Varnish, Redis, WP Rocket) are undermined because the browser immediately blocks on an asynchronous origin request.
-3. **Core Web Vitals & TTFB Degradation**: Mobile shoppers experience sluggish navigation and layout shifts as the header waits for the fragment payload.
-
-**WooCommerce Fast Fragments & Cart Turbo** resolves this by introducing client-side **HTML5 LocalStorage fragment hydration** paired with an ultra-lightweight **WordPress REST API** endpoint. The default `wc-cart-fragments` script is safely dequeued on non-cart pages, delivering an instant **0ms mini-cart render** from the browser's persistent cache.
+[✉️ Discuss Store Optimization](mailto:sekmenwp@gmail.com) · [💼 Upwork Profile](https://www.upwork.com/freelancers/~01a7a8b58043e6e6d9) · [🔗 Main GitHub Profile](https://github.com/harunsekmen)
 
 ---
 
 ## 📸 Visual Previews & Operational Interface
 
-### 1. Storefront Hydration (0ms Instant Mini-Cart Render)
-Visitors experience instant page rendering with 100% cache hits. Mini-cart counters update seamlessly without polling the origin server on every visit:
+### 1. Storefront Hydration (Instant Mini-Cart Render)
+Mini-cart counters and bag contents populate directly from browser storage without delaying page rendering:
 
 ![Storefront Turbo Preview](docs/assets/storefront-turbo-preview.png)
 
 ### 2. WordPress Admin Performance & Configuration Dashboard
-Store engineers can monitor estimated server TTFB reductions and toggle REST turbo endpoints directly inside WP Admin:
+Store administrators can review fragment activity, test endpoint health, and manage caching behavior directly in WP Admin:
 
 ![WP Admin Performance Metrics](docs/assets/admin-metrics-preview.png)
 
 ---
 
+## ⚡ The Problem It Solves
+
+By default, standard WooCommerce stores trigger an un-cacheable background request (`?wc-ajax=get_refreshed_fragments`) on almost every single page load across the entire store. Even when visitors are simply reading a blog post or browsing product categories, the server is repeatedly polled just to verify if the shopping bag icon has items.
+
+On stores with active traffic:
+- **Unnecessary Server Load:** Dozens of visitors browsing products concurrently spawn repeated PHP processes just to check the cart state.
+- **Sluggish Page Navigation:** Pages take longer to feel fully interactive because the browser waits for background server responses.
+- **Cache Interference:** Full-page caching layers (such as Redis, Varnish, Cloudflare, or caching plugins) are less effective when every page view triggers background origin server requests.
+
+**WooCommerce Fast Fragments & Cart Turbo** resolves this by migrating cart state caching into **HTML5 LocalStorage** and providing an optimized **WordPress REST API** endpoint. The heavy default fragment script is safely bypassed on non-cart pages, delivering an immediate mini-cart render while keeping cart counts accurate whenever an item is added or removed.
+
+---
+
 ## 🛠️ Key Architectural Features
 
-- **Zero-Request Page Navigation**: Dequeues WooCommerce's default fragment AJAX script on catalog and archive pages.
-- **HTML5 LocalStorage Hydration**: Persists mini-cart DOM fragments and validates freshness against the browser's `woocommerce_cart_hash` cookie.
-- **REST API Turbo Endpoint (`/wp-json/wff/v1/fragments`)**: Replaces heavy `admin-ajax` / `wc-ajax` execution with a clean, cached REST payload for cart mutation events.
-- **Full HPOS Compatibility**: Built with native support for High-Performance Order Storage (`custom_order_tables`) and Cart/Checkout Blocks.
-- **Micro-Weight Footprint**: Client-side script is under 2 KB gzipped with zero external dependencies beyond core jQuery.
+- **Browser-Side Cart Caching:** Keeps mini-cart DOM fragments in browser LocalStorage and validates freshness with the store's cart hash cookie.
+- **Optimized REST Endpoint:** Replaces heavy legacy AJAX execution with a clean, efficient REST API payload (`/wp-json/wff/v1/fragments`) that fires only during real cart mutations.
+- **Smooth Catalog Browsing:** Removes redundant background requests on catalog and archive pages so shoppers can navigate smoothly.
+- **High-Performance Order Storage (HPOS) Ready:** Built to work cleanly with modern WooCommerce database tables and checkout blocks.
+- **Lightweight Implementation:** Clean, dependency-free script footprint under 2 KB gzipped.
 
 ---
 
-## 📊 Benchmark & Comparison
+## 💼 Store Speed Audits & Performance Optimization
 
-| Feature / Behavior | Default WooCommerce | With Fast Fragments Turbo |
-| :--- | :--- | :--- |
-| **Catalog Page Requests** | 1 AJAX call per page view (`?wc-ajax=...`) | **0 AJAX calls** (Instant LocalStorage) |
-| **Server TTFB Impact** | High PHP & MySQL origin load | **~85% Reduction** in catalog server load |
-| **Edge Cache Hit Rate** | Often degraded by dynamic polling | **100% Cache Hit** on Varnish/Cloudflare |
-| **Cart Sync Mechanism** | Legacy unindexed `admin-ajax` | Modern JSON REST API endpoint |
+Is your WooCommerce store slowing down under peak traffic or failing speed benchmarks?
 
----
+- **Comprehensive Store Speed Audit:** Identify database queries, third-party plugin bloat, and server bottlenecks.
+- **Cart & Checkout Optimization:** Eliminate slow AJAX handlers, optimize cart fragments, and streamline checkout steps.
+- **Hosting & Caching Architecture:** Proper configuration of Redis object caching, page caching, and CDN asset delivery.
+- **Measurable Improvements:** Before-and-after performance metrics verified on real product pages and mobile devices.
 
-## 🏗️ Repository Structure
-
-```
-woo-fast-fragments/
-├── .github/
-│   └── workflows/
-│       └── ci.yml               <-- GitHub Actions syntax and linting checks
-├── assets/
-│   ├── css/
-│   │   └── turbo-fragments.css  <-- Badge counter styling & pulse animations
-│   └── js/
-│       └── turbo-fragments.js   <-- LocalStorage hydration & mutation listener
-├── docs/
-│   └── assets/                  <-- High-resolution architecture & UI previews
-├── includes/
-│   ├── class-admin.php          <-- WP Admin dashboard & settings controller
-│   ├── class-engine.php         <-- Script dequeuer & fragment cache engine
-│   ├── class-plugin.php         <-- Singleton bootstrap & dependency checks
-│   └── class-rest-endpoint.php  <-- Lightweight /wff/v1/fragments endpoint
-├── templates/
-│   └── admin-dashboard.php      <-- Telemetry UI table & settings form
-├── tests/
-│   ├── run-e2e-test.js          <-- Headless Chromium E2E verification suite
-│   ├── store-simulation.html    <-- Storefront catalog DOM mock
-│   └── admin-simulation.html    <-- Admin dashboard mock
-├── composer.json                <-- PSR-4 autoload mapping
-├── LICENSE                      <-- GPL-3.0 License
-├── README.md                    <-- Technical documentation with benchmarks
-└── woo-fast-fragments.php       <-- Main plugin entry point & metadata
-```
+📩 **Discuss your store:** Reach out at **[sekmenwp@gmail.com](mailto:sekmenwp@gmail.com)** or hire me through **[Upwork](https://www.upwork.com/freelancers/~01a7a8b58043e6e6d9)**.
 
 ---
 
-## 🧪 Automated Testing & Verification
+## 🚀 Developer Setup & Local Testing
 
-The repository includes an end-to-end headless browser test suite verifying LocalStorage hydration, pulse animations, and admin metrics:
+1. **Clone into plugins directory:**
+   ```bash
+   git clone https://github.com/harunsekmen/woo-fast-fragments.git wp-content/plugins/woo-fast-fragments
+   ```
 
-```bash
-# Run Playwright E2E simulation suite
-node tests/run-e2e-test.js
-```
+2. **Activate via WP-CLI:**
+   ```bash
+   wp plugin activate woo-fast-fragments
+   ```
 
----
-
-## 🚀 Installation & Quick Start
-
-### Option 1: Git Clone (Development)
-Clone directly into your WordPress plugins directory:
-```bash
-cd wp-content/plugins/
-git clone https://github.com/harunsekmen/woo-fast-fragments.git
-```
-
-### Option 2: WP-CLI Activation
-```bash
-wp plugin activate woo-fast-fragments
-```
+3. **Verify in WP Admin:** Navigate to **WooCommerce > Fast Fragments** to test the REST response and verify caching status.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the terms of the **GNU General Public License v3.0 or later (GPL-3.0-or-later)**.
+This open-source project is licensed under the **[GNU General Public License v3.0](LICENSE)**.
 
