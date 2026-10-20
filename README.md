@@ -41,6 +41,31 @@ On stores with active traffic:
 
 ---
 
+
+---
+
+## 🏗️ Architecture: Traditional vs Fast Fragments
+
+The architecture below illustrates the difference between standard WooCommerce fragment calls and the client-side cache model:
+
+```mermaid
+graph TD
+    subgraph Traditional WooCommerce
+        A1[Visitor Opens Page] --> B1[POST /?wc-ajax=get_refreshed_fragments]
+        B1 --> C1[Full WordPress & WC Boot]
+        C1 --> D1[Uncached Server Query]
+        D1 --> E1[High TTFB & Server CPU Spike]
+    end
+
+    subgraph Fast Fragments Architecture
+        A2[Visitor Opens Page] --> B2[localStorage Cache Valid?]
+        B2 -- Yes (Fresh) --> C2[Instant DOM Hydration <5ms]
+        C2 --> D2[Zero Server Hits / Edge Cached HTML]
+        B2 -- Cart Event (Add/Remove) --> E2[Lightweight REST Differential]
+        E2 --> F2[Update localStorage & Sync Mini-Cart]
+    end
+```
+
 ## 🛠️ Key Architectural Features
 
 - **Browser-Side Cart Caching:** Keeps mini-cart DOM fragments in browser LocalStorage and validates freshness with the store's cart hash cookie.
